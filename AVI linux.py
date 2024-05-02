@@ -118,7 +118,7 @@ def check_login(driver):
             )
             print("Trang load hoàn tất")
         except:
-            print("Thực hiện thao tác tiếp theo")
+            return
         '''' ---------------------- '''
 
 
