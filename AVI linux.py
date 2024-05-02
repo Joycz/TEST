@@ -6,15 +6,17 @@ try:
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.common.by import By
     from selenium.common.exceptions import NoSuchElementException
+    from selenium.common.exceptions import NoSuchWindowException
     from selenium.common.exceptions import TimeoutException
 except:
-    os.system("python3 install selenium")
+    os.system("pip install selenium")
     from selenium import webdriver
     from selenium.webdriver.chrome.options import Options
     from selenium.webdriver.support import expected_conditions as EC
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.common.by import By
     from selenium.common.exceptions import NoSuchElementException
+    from selenium.common.exceptions import NoSuchWindowException
     from selenium.common.exceptions import TimeoutException
 import time
 import json
@@ -107,8 +109,15 @@ def check_login(driver):
         user.send_keys(data['password'])
         time.sleep(0.25)
         driver.find_element(By.ID, 'button-login').click()
-        wait = WebDriverWait(driver, 1000)
-        wait.until(EC.invisibility_of_element_located((By.ID, 'button-login')))
+
+        try:
+            wait = WebDriverWait(driver, 60)
+            wait.until(EC.invisibility_of_element_located((By.ID, 'button-login')))
+            print("Đã đăng nhập thành công")
+        except TimeoutException:
+            print("Mạng chậm ...!")
+            return False
+        
         driver.get('https://aviso.bz/work-youtube')
         
         '''' Thực hiện chờ web load '''
@@ -227,9 +236,9 @@ def job_ytb(driver):
                 time.sleep(1)
                 driver.close()
                 driver.switch_to.window(driver.window_handles[0])
-        except:
-            time.sleep(3) #Không còn nhiệm vụ thoát khỏi FOR
-            pass
+        except NoSuchWindowException:
+            print("Không thể chuyển sang tab mới. Lặp lại vòng lặp...")
+            continue
             
     # time.sleep(2)
     # ads(driver)
@@ -237,16 +246,17 @@ def job_ytb(driver):
 def main():
     num_windows = 3
     while True:
+        os.system('cls')
         driver = open_browser(num_windows)
         if not check_login(driver):
             print("Trang load quá lâu")
-            time.sleep(60 * 5)
             driver.quit()
+            time.sleep(60 * 5)
             continue
         job_ytb(driver)
-        print("Chờ 5 phút trước khi thực hiện lại quá trình tiếp theo...")
+        driver.quit()
+        print("Chờ 5 phút.")
         time.sleep(60 * 5)
 
 if __name__ == "__main__":
     main()
-#Hi
