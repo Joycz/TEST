@@ -117,6 +117,7 @@ def check_login(driver):
                 EC.presence_of_element_located((By.TAG_NAME, "body"))
             )
             print("Trang load hoàn tất")
+            return True
         except:
             return
         '''' ---------------------- '''
@@ -238,11 +239,11 @@ def main():
     while True:
         driver = open_browser(num_windows)
         if not check_login(driver):
+            print("Trang load quá lâu")
             time.sleep(60 * 5)
             driver.quit()
             continue
         job_ytb(driver)
-        driver.quit()
         print("Chờ 5 phút trước khi thực hiện lại quá trình tiếp theo...")
         time.sleep(60 * 5)
 
