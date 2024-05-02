@@ -237,7 +237,8 @@ def main():
     num_windows = 3
     while True:
         driver = open_browser(num_windows)
-        check_login(driver)
+        if not check_login(driver):
+            continue
         job_ytb(driver)
         driver.quit()
         print("Chờ 5 phút trước khi thực hiện lại quá trình tiếp theo...")
