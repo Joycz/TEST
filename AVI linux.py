@@ -239,6 +239,7 @@ def main():
         driver = open_browser(num_windows)
         if not check_login(driver):
             time.sleep(60 * 5)
+            driver.quit()
             continue
         job_ytb(driver)
         driver.quit()
