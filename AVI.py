@@ -165,6 +165,7 @@ def job_ytb(driver):
                         time.sleep(4)
                         time.sleep(time_job_2 + 2)
                         driver.close()
+                        
                     except:
                         driver.close()
                 else:

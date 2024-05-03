@@ -174,11 +174,13 @@ def job_ytb_test(driver):
     nhiem_vu = driver.find_elements(By.CSS_SELECTOR, "[id^='link_ads_start']")
     for index, nhiemvu in enumerate(nhiem_vu):
         try:
+            time.sleep(1.5)
             driver.switch_to.window(driver.window_handles[0])
             try:
                 nhiemvu.click()
                 driver.switch_to.window(driver.window_handles[1])
             except:
+                time.sleep(1)
                 continue #Click không được chạy lại FOR
 
             '''' Thực hiện chờ web load '''
@@ -191,45 +193,48 @@ def job_ytb_test(driver):
                 continue
             '''' ---------------------- '''
             try:
-                time_job = int(driver.find_element(By.ID, 'tmr').text)
-                iframe = driver.find_element(By.ID, "video-start")
+                time_job = int(driver.find_element(By.ID,'tmr').text)
+                iframe = driver.find_element(By.ID,"video-start")
                 driver.switch_to.frame(iframe)
 
-                play_button_elements = driver.find_elements(By.CLASS_NAME, "ytp-large-play-button")
+                play_button_elements = driver.find_elements(By.CLASS_NAME,"ytp-large-play-button") 
                 found = False
-                for element in play_button_elements:
-                    if found:
-                        wait = WebDriverWait(driver, 25)
-                        play_button = wait.until(EC.presence_of_element_located(By.CLASS_NAME, "ytp-large-play-button"))
+                for element in play_button_elements: 
+                    classes = element.get_attribute("class") 
+                    if "ytp-large-play-button-red-bg" in classes: 
+                        found = True 
+                        break 
+                if found:
+                    wait = WebDriverWait(driver, 25)
+                    play_button = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "ytp-large-play-button")))
+                    play_button.click()
+                    time.sleep(time_job + 3)
+                    #------------#
+                    try:
+                        driver.switch_to.default_content() #Thoát iframe để lấy time tmr
+                        tmr_element = WebDriverWait(driver, 10).until(
+                            EC.visibility_of_element_located((By.ID, 'tmr'))
+                        )
+                        time_job_2 = int(tmr_element.text)
+                        iframe = driver.find_element(By.ID, "video-start")
+                        driver.switch_to.frame(iframe)
+                        play_button = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "ytp-large-play-button")))
                         play_button.click()
-                        time.sleep(time_job + 3)
-                        #------------#
-                        try:
-                            driver.switch_to.default_content() #Thoát iframe để lấy time tmr
-                            tmr_element = WebDriverWait(driver, 10).until(
-                                EC.visibility_of_element_located((By.ID, 'tmr'))
-                            )
-                            time_job_2 = int(tmr_element.text)
-
-                            #switch vào iframe lại
-                            iframe = driver.find_element(By.ID, "video-start")
-                            driver.switch_to.frame(iframe)
-
-                            #ấn nút play
-                            play_button = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "ytp-large-play-button")))
-                            play_button.click()
-                            time.sleep(time_job_2 + 3)
-                            driver.close()
-                            driver.switch_to.window(driver.window_handles[0])
-                        except:
-                            driver.close()
-                            driver.switch_to.window(driver.window_handles[0])
-                        #------------#
-                    else:
+                        time.sleep(time_job_2 + 3)
                         driver.close()
                         driver.switch_to.window(driver.window_handles[0])
-                        continue
+                        print("Hoàn thành nhiệm vụ : " + str(index+1))
+                    except:
+                        print("Hoàn thành nhiệm vụ : " + str(index+1))
+                        driver.close()
+                        driver.switch_to.window(driver.window_handles[0])
+                    #------------#
+                else:
+                    driver.close()
+                    driver.switch_to.window(driver.window_handles[0])
+                    continue
             except:
+                print("")
                 driver.close()
                 continue
         except:
@@ -316,6 +321,7 @@ def main():
                 driver.quit()
                 time.sleep(60 * 5)
                 continue
+            time.sleep(1)
             job_ytb_test(driver)
             driver.quit()
             print("Chờ 5 phút.")
