@@ -84,10 +84,7 @@ def open_browser(num_windows):
     options.add_argument(f"--window-size={window_width},{window_height}")
     options.add_argument(f"--window-position={window_x_position},{0}")
     options.add_argument(f"user-agent={user_agent}")
-    service = webdriver.chrome.service.Service(chromedriver_path)
-    service.start()
-
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Chrome(options=options)
 
     driver.switch_to.window(driver.window_handles[-1])
     return driver
@@ -173,6 +170,72 @@ def check_login(driver):
 #     print("Hết nhiệm vụ quảng cáo")
 
 
+def job_ytb_test(driver):
+    nhiem_vu = driver.find_elements(By.CSS_SELECTOR, "[id^='link_ads_start']")
+    for index, nhiemvu in enumerate(nhiem_vu):
+        try:
+            driver.switch_to.window(driver.window_handles[0])
+            try:
+                nhiemvu.click()
+                driver.switch_to.window(driver.window_handles[1])
+            except:
+                continue #Click không được chạy lại FOR
+
+            '''' Thực hiện chờ web load '''
+            try:
+                WebDriverWait(driver, 60).until(
+                    EC.presence_of_element_located((By.TAG_NAME, "body"))
+                )
+            except:
+                driver.close()
+                continue
+            '''' ---------------------- '''
+            try:
+                time_job = int(driver.find_element(By.ID, 'tmr').text)
+                iframe = driver.find_element(By.ID, "video-start")
+                driver.switch_to.frame(iframe)
+
+                play_button_elements = driver.find_elements(By.CLASS_NAME, "ytp-large-play-button")
+                found = False
+                for element in play_button_elements:
+                    if found:
+                        wait = WebDriverWait(driver, 25)
+                        play_button = wait.until(EC.presence_of_element_located(By.CLASS_NAME, "ytp-large-play-button"))
+                        play_button.click()
+                        time.sleep(time_job + 3)
+                        #------------#
+                        try:
+                            driver.switch_to.default_content() #Thoát iframe để lấy time tmr
+                            tmr_element = WebDriverWait(driver, 10).until(
+                                EC.visibility_of_element_located((By.ID, 'tmr'))
+                            )
+                            time_job_2 = int(tmr_element.text)
+
+                            #switch vào iframe lại
+                            iframe = driver.find_element(By.ID, "video-start")
+                            driver.switch_to.frame(iframe)
+
+                            #ấn nút play
+                            play_button = wait.until(EC.presence_of_element_located((By.CLASS_NAME, "ytp-large-play-button")))
+                            play_button.click()
+                            time.sleep(time_job_2 + 3)
+                            driver.close()
+                            driver.switch_to.window(driver.window_handles[0])
+                        except:
+                            driver.close()
+                            driver.switch_to.window(driver.window_handles[0])
+                        #------------#
+                    else:
+                        driver.close()
+                        driver.switch_to.window(driver.window_handles[0])
+                        continue
+            except:
+                driver.close()
+                continue
+        except:
+            pass
+    pass
+
 def job_ytb(driver):
     nhiem_vu = driver.find_elements(By.CSS_SELECTOR, "[id^='link_ads_start']")
     for index, nhiemvu in enumerate(nhiem_vu):
@@ -244,19 +307,23 @@ def job_ytb(driver):
     # ads(driver)
 
 def main():
-    num_windows = 3
     while True:
-        os.system('cls')
-        driver = open_browser(num_windows)
-        if not check_login(driver):
-            print("Trang load quá lâu")
+        try:
+            os.system('cls')
+            driver = open_browser(3)
+            if not check_login(driver):
+                print("Trang load quá lâu")
+                driver.quit()
+                time.sleep(60 * 5)
+                continue
+            job_ytb_test(driver)
             driver.quit()
+            print("Chờ 5 phút.")
             time.sleep(60 * 5)
-            continue
-        job_ytb(driver)
-        driver.quit()
-        print("Chờ 5 phút.")
-        time.sleep(60 * 5)
+        except:
+            driver.quit()
+            time.sleep(60*5)
+
 
 if __name__ == "__main__":
     main()
