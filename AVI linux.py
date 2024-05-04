@@ -66,7 +66,6 @@ def open_browser(num_windows):
     options.add_argument('--disable-setuid-sandbox')
     options.add_argument('--disable-spell-checking')
     options.add_argument('--disable-speech-api')
-
     options.add_argument('--disable-gpu')
     options.add_argument('--disable-background-timer-throttling')
     options.add_argument('--disable-predictive-services')
@@ -128,15 +127,22 @@ def check_login(driver):
         '''' ---------------------- '''
 
 def job_ytb_test(driver):
+    index = -1
     nhiem_vu = driver.find_elements(By.CSS_SELECTOR, "[id^='link_ads_start']")
+    kiemtra = len(nhiem_vu)
     for index, nhiemvu in enumerate(nhiem_vu):
         try:
             time.sleep(1.5)
             driver.switch_to.window(driver.window_handles[0])
             try:
-                nhiemvu.click()
-                driver.switch_to.window(driver.window_handles[1])
+                if kiemtra > 2:
+                    nhiemvu.click()
+                    driver.switch_to.window(driver.window_handles[1])
+                else:
+                    print("Hết nhiệm vụ!")
+                    break
             except:
+                print("Nhiệm vụ lỗi")
                 time.sleep(1)
                 continue #Click không được chạy lại FOR
 
@@ -196,9 +202,20 @@ def job_ytb_test(driver):
                 continue
         except:
             pass
-    pass
+    return index
+
+def wait():
+    for i in range(60 * 5):
+        time.sleep(1)
+        print("Chờ : " + str(i), end='\r')
+        i += 1
+    return
+
+total_completed_tasks = 0
 
 def main():
+    global total_completed_tasks  # Declare total_completed_tasks as global
+
     while True:
         try:
             os.system('cls')
@@ -206,18 +223,22 @@ def main():
             if not check_login(driver):
                 print("Trang load quá lâu")
                 driver.quit()
-                time.sleep(60 * 5)
+                print("Hết nhiệm vụ. Vui lòng chờ")
+                wait()
                 continue
             time.sleep(1)
-            job_ytb_test(driver)
+            completed_tasks = job_ytb_test(driver)  # Get the number of completed tasks
+            total_completed_tasks += completed_tasks  # Accumulate the completed tasks
             driver.quit()
-            print("Chờ 5 phút.")
-            time.sleep(60 * 5)
+            print("Hết nhiệm vụ. Vui lòng chờ")
+            wait()
         except Exception as e:
             print("Lỗi:", str(e))
             if 'driver' in locals():
                 driver.quit()
-            time.sleep(60*5)
+            wait()
+        finally:
+            print("Tổng số nhiệm vụ hoàn thành:", total_completed_tasks)
 
 
 if __name__ == "__main__":
