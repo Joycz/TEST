@@ -37,8 +37,8 @@ def open_browser(num_windows):
     window_x_position = 0
 
     user_agent = read_user_agent_from_json()
-    with open('proxy.json', 'r') as file:
-        proxy_info = json.load(file)
+    # with open('proxy.json', 'r') as file:
+    #     proxy_info = json.load(file)
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-blink-features=AutomationControlled')
@@ -78,7 +78,7 @@ def open_browser(num_windows):
     options.add_experimental_option("excludeSwitches", ["enable-automation"])
     options.add_experimental_option('useAutomationExtension', False)
     options.add_argument('--mute-audio')
-    options.add_argument(f"--proxy-server={proxy_info['Proxy']}")
+    #options.add_argument(f"--proxy-server={proxy_info['Proxy']}")
     options.add_argument(f"--window-size={window_width},{window_height}")
     options.add_argument(f"--window-position={window_x_position},{0}")
     options.add_argument(f"user-agent={user_agent}")
@@ -127,24 +127,25 @@ def check_login(driver):
         '''' ---------------------- '''
 
 def job_ytb_test(driver):
-    index = -1
-    completed_tasks = 0  # Initialize completed tasks count
+    #index = -1
+    completed_tasks = 1  # Initialize completed tasks count
     nhiem_vu = driver.find_elements(By.CSS_SELECTOR, "[id^='link_ads_start']")
     kiemtra = len(nhiem_vu)
     for index, nhiemvu in enumerate(nhiem_vu):
+        time.sleep(1.5)
         try:
-            time.sleep(1.5)
             driver.switch_to.window(driver.window_handles[0])
             try:
                 if kiemtra > 2:
                     nhiemvu.click()
+                    time.sleep(1)
                     driver.switch_to.window(driver.window_handles[1])
                 else:
                     print("Hết nhiệm vụ!")
                     break
             except:
-                print("Nhiệm vụ lỗi")
-                time.sleep(1)
+                print("Nhiệm vụ lỗi", end='\r')
+                time.sleep(2)
                 continue #Click không được chạy lại FOR
 
             '''' Thực hiện chờ web load '''
@@ -187,11 +188,7 @@ def job_ytb_test(driver):
                         time.sleep(time_job_2 + 3)
                         driver.close()
                         driver.switch_to.window(driver.window_handles[0])
-                        completed_tasks += 1
-                        print("Hoàn thành nhiệm vụ : " + str(completed_tasks))
                     except:
-                        completed_tasks += 1
-                        print("Hoàn thành nhiệm vụ : " + str(completed_tasks))
                         driver.close()
                         driver.switch_to.window(driver.window_handles[0])
                     #------------#
@@ -205,6 +202,9 @@ def job_ytb_test(driver):
                 continue
         except:
             pass
+        #Ngoai FOR
+        completed_tasks += 1
+        print("Hoàn thành nhiệm vụ : " + str(completed_tasks))
     return index
 
 def wait():
@@ -217,8 +217,7 @@ def wait():
 total_completed_tasks = 0
 
 def main():
-    global total_completed_tasks  # Declare total_completed_tasks as global
-
+    global total_completed_tasks
     while True:
         try:
             os.system('cls')
@@ -230,10 +229,10 @@ def main():
                 wait()
                 continue
             time.sleep(1)
-            completed_tasks = job_ytb_test(driver)  # Get the number of completed tasks
-            total_completed_tasks += completed_tasks  # Accumulate the completed tasks
+            completed_tasks = job_ytb_test(driver)
+            total_completed_tasks += completed_tasks
             driver.quit()
-            print("Hết nhiệm vụ. Vui lòng chờ")
+            print("Hết nhiệm vụ. Vui lòng chờ", end='\r')
             wait()
         except Exception as e:
             print("Lỗi:", str(e))
@@ -241,9 +240,9 @@ def main():
                 driver.quit()
             wait()
         finally:
+            print("=================================")
             print("Tổng số nhiệm vụ hoàn thành:", total_completed_tasks)
-
+            print("=================================")
 
 if __name__ == "__main__":
     main()
-
