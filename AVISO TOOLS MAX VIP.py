@@ -126,8 +126,9 @@ def check_login(driver):
             return
         '''' ---------------------- '''
 
+#phần nhiem_vu nó get về cả id phía sau của nó dưới đây là chỉ bắt được cái link_ads_start thôi chứ không lấy về cụ thể id nằm sau nó, dạng id của các element đó sẽ có kiểu là : link_ads_start-38137,... và nhiều hơn thế, điều này nếu sử dụng theo cách thông thường là lấy phần đầu của nó thì sẽ xảy ra việc không click được. Tôi cần cách để lấy về cả id phía sau để thực hiện click vào nó 
+
 def job_ytb_test(driver):
-    #index = -1
     completed_tasks = 1  # Initialize completed tasks count
     nhiem_vu = driver.find_elements(By.CSS_SELECTOR, "[id^='link_ads_start']")
     kiemtra = len(nhiem_vu)
@@ -137,7 +138,10 @@ def job_ytb_test(driver):
             driver.switch_to.window(driver.window_handles[0])
             try:
                 if kiemtra > 2:
-                    nhiemvu.click()
+                    element_id = nhiemvu.get_attribute("id")
+                    css_selector = f"#{element_id}"
+                    specific_element = driver.find_element(By.CSS_SELECTOR, css_selector)
+                    specific_element.click()
                     time.sleep(1)
                     driver.switch_to.window(driver.window_handles[1])
                 else:
@@ -205,7 +209,7 @@ def job_ytb_test(driver):
         #Ngoai FOR
         completed_tasks += 1
         print("Hoàn thành nhiệm vụ : " + str(completed_tasks))
-    return index
+    return completed_tasks
 
 def wait():
     for i in range(60 * 5):
