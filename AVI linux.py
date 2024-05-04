@@ -128,6 +128,7 @@ def check_login(driver):
 
 def job_ytb_test(driver):
     index = -1
+    completed_tasks = 0  # Initialize completed tasks count
     nhiem_vu = driver.find_elements(By.CSS_SELECTOR, "[id^='link_ads_start']")
     kiemtra = len(nhiem_vu)
     for index, nhiemvu in enumerate(nhiem_vu):
@@ -186,9 +187,11 @@ def job_ytb_test(driver):
                         time.sleep(time_job_2 + 3)
                         driver.close()
                         driver.switch_to.window(driver.window_handles[0])
-                        print("Hoàn thành nhiệm vụ : " + str(index+1))
+                        completed_tasks += 1
+                        print("Hoàn thành nhiệm vụ : " + str(completed_tasks))
                     except:
-                        print("Hoàn thành nhiệm vụ : " + str(index+1))
+                        completed_tasks += 1
+                        print("Hoàn thành nhiệm vụ : " + str(completed_tasks))
                         driver.close()
                         driver.switch_to.window(driver.window_handles[0])
                     #------------#
